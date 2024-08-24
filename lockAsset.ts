@@ -7,7 +7,6 @@ import {
   fromHex,
   toHex,
 } from "https://deno.land/x/lucid@0.8.3/mod.ts";
-
 import * as cbor from "https://deno.land/x/cbor@v1.4.1/index.js";
 
 const lucid = await Lucid.new(
@@ -22,20 +21,19 @@ lucid.selectWalletFromSeed(await Deno.readTextFile("./owner.seed"));
 
 async function readValidator(): Promise<SpendingValidator> {
   const validator = JSON.parse(await Deno.readTextFile("plutus.json"))
-    .validator[0];
+    .validators[0];
   return {
     type: "PlutusV2",
-    script: toHex(cbor.encode(fromHex(validator.compileCode))),
+    script: toHex(cbor.encode(fromHex(validator.compiledCode))),
   };
 }
-
-const validator = readValidator();
 
 const publicKeyHash = lucid.utils.getAddressDetails(
   await lucid.wallet.address()
 ).paymentCredential?.hash;
+
 const Datum = Data.Object({
-  owner: Data.string,
+  owner: Data.String,
 });
 
 type Datum = Data.Static<typeof Datum>;
@@ -56,21 +54,23 @@ async function lockAssets(
 }
 
 async function main() {
-  const validator = readValidator();
+  const validator = await readValidator();
 
   const datum = Data.to<Datum>(
     {
-      owner: publicKeyHash,
+      owner:
+        publicKeyHash ??
+        "00000000000000000000000000000000000000000000000000000000",
     },
     Datum
   );
 
-  const txHash = await lockAssets(2000000n, { validator, datum });
+  const txHash = await lockAssets(1000000n, { validator, datum });
 
   await lucid.awaitTx(txHash);
 
   console.log(`tx hash: ${txHash}
-                datum: ${datum}
+                datum: ${datum}             
     `);
 }
 

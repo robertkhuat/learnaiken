@@ -53,4 +53,7 @@ aiken docs
 ## Resources
 
 Find more on the [Aiken's user manual](https://aiken-lang.org).
+
 # learnaiken
+
+<!-- rotate nuclear autumn hunt photo resist casual tooth major device harsh zero mail apart rent hurry anxiety blur dawn shield tail iron wasp weapon -->
